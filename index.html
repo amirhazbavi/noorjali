@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تلاوت نور | مصحف شریف</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0908;
+    --bg2:#141210;
+    --panel:#17140f;
+    --gold:#c9a84c;
+    --gold-bright:#e8c874;
+    --gold-dim:#8a7135;
+    --line:#33291a;
+    --text:#eee6d0;
+    --text-dim:#a89a78;
+    --danger:#c0563f;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background:
+      radial-gradient(circle at 50% 0%, #201a10 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Vazirmatn', sans-serif;
+    min-height:100vh;
+    padding-bottom:90px;
+  }
+  /* geometric gold pattern backdrop instead of a personal photo */
+  .pattern-veil{
+    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.10;
+    background-image:
+      linear-gradient(45deg, var(--gold) 1px, transparent 1px),
+      linear-gradient(-45deg, var(--gold) 1px, transparent 1px);
+    background-size:46px 46px;
+  }
+  header{
+    position:relative; z-index:2;
+    text-align:center;
+    padding:34px 16px 20px;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, #171310, transparent);
+  }
+  header h1{
+    font-family:'Amiri', serif;
+    font-size:2.1rem;
+    color:var(--gold-bright);
+    letter-spacing:1px;
+    text-shadow:0 0 18px rgba(201,168,76,.25);
+  }
+  header p{ color:var(--text-dim); margin-top:6px; font-size:.85rem;}
+  header p.dedication{ color:var(--gold-dim); margin-top:10px; font-size:.78rem; letter-spacing:.3px;}
+
+  nav{
+    position:relative; z-index:2;
+    display:flex; justify-content:center; gap:8px; flex-wrap:wrap;
+    padding:14px 10px; border-bottom:1px solid var(--line);
+    background:var(--bg2);
+  }
+  nav button{
+    background:transparent; border:1px solid var(--line); color:var(--text-dim);
+    padding:8px 18px; border-radius:999px; font-family:inherit; font-size:.85rem;
+    cursor:pointer; transition:.2s;
+  }
+  nav button.active, nav button:hover{
+    border-color:var(--gold); color:var(--gold-bright); background:rgba(201,168,76,.08);
+  }
+
+  main{ position:relative; z-index:2; max-width:920px; margin:0 auto; padding:24px 14px;}
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:20px; margin-bottom:18px;
+  }
+  .card h2{ color:var(--gold-bright); font-size:1.05rem; margin-bottom:14px; border-bottom:1px solid var(--line); padding-bottom:10px;}
+
+  .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+  select, input{
+    background:#0f0d0a; border:1px solid var(--line); color:var(--text);
+    padding:10px 12px; border-radius:8px; font-family:inherit; font-size:.9rem;
+    flex:1; min-width:140px;
+  }
+  select:focus, input:focus{ outline:none; border-color:var(--gold);}
+  button.primary{
+    background:linear-gradient(135deg, var(--gold-dim), var(--gold));
+    color:#141210; border:none; padding:10px 20px; border-radius:8px;
+    font-family:inherit; font-weight:700; cursor:pointer; font-size:.9rem;
+  }
+  button.ghost{
+    background:transparent; border:1px solid var(--gold-dim); color:var(--gold-bright);
+    padding:10px 16px; border-radius:8px; font-family:inherit; cursor:pointer;
+  }
+
+  /* Mushaf page viewer */
+  .page-viewer{ text-align:center;}
+  .page-frame{
+    position:relative; border:6px solid #2a2216; border-radius:8px; overflow:hidden;
+    background:#0d0b08; min-height:420px; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 0 1px var(--gold-dim) inset, 0 20px 40px rgba(0,0,0,.5);
+  }
+  .page-frame img{ width:100%; display:block;}
+  .page-frame .msg{ color:var(--text-dim); padding:30px; font-size:.85rem; line-height:1.9;}
+  .mushaf-text{
+    font-family:'Amiri', serif; direction:rtl; text-align:justify; text-align-last:center;
+    font-size:1.7rem; line-height:2.7; color:var(--text); padding:26px 22px;
+    width:100%;
+  }
+  .ayah-num{
+    display:inline-block; color:var(--gold-bright); font-size:1.05rem;
+    border:1px solid var(--gold-dim); border-radius:50%; width:1.6em; height:1.6em;
+    line-height:1.5em; text-align:center; margin:0 3px; vertical-align:middle;
+  }
+  .page-nav{ display:flex; justify-content:space-between; align-items:center; margin-top:12px;}
+  .page-nav span{ color:var(--gold-bright); font-weight:700;}
+
+  .translation-box{ margin-top:16px; text-align:right; line-height:2.1; font-size:.95rem; color:var(--text);}  
+  .translation-box .ayah{ margin-bottom:10px; padding-bottom:10px; border-bottom:1px dashed var(--line);}  
+  .translation-box .ayah b{ color:var(--gold); margin-left:6px;}
+  .status{ font-size:.8rem; color:var(--text-dim); margin-top:8px;}
+
+  /* audio bar */
+  #audioBar{
+    position:fixed; bottom:0; right:0; left:0; z-index:50;
+    background:#100e0b; border-top:1px solid var(--gold-dim);
+    padding:10px 14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+  }
+  #audioBar .title{ color:var(--gold-bright); font-size:.8rem; min-width:110px;}
+  #audioBar audio{ flex:2; min-width:180px; height:34px;}
+
+  .surah-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:8px;}
+  .surah-chip{
+    background:#0f0d0a; border:1px solid var(--line); border-radius:8px; padding:8px 10px;
+    cursor:pointer; font-size:.8rem; display:flex; justify-content:space-between;
+  }
+  .surah-chip:hover{ border-color:var(--gold);}  
+  .surah-chip b{ color:var(--gold-bright);}  
+
+  .donate-box{ text-align:center;}  
+  .card-number{
+    font-family:'Vazirmatn'; letter-spacing:2px; font-size:1.15rem; color:var(--gold-bright);
+    background:#0f0d0a; border:1px dashed var(--gold-dim); border-radius:10px; padding:14px;
+    margin:14px 0; direction:ltr;
+  }
+  footer{ text-align:center; padding:20px; color:var(--text-dim); font-size:.75rem;}  
+  .hint{ background:#1c1409; border:1px solid var(--gold-dim); color:var(--text-dim); font-size:.78rem; padding:10px 12px; border-radius:8px; margin-top:10px; line-height:1.8;}  
+  .dhikr-today{
+    font-family:'Amiri', serif; font-size:1.3rem; color:var(--gold-bright);
+    text-align:center; padding:16px; border:1px dashed var(--gold-dim); border-radius:10px;
+    background:#0f0d0a; line-height:2.1;
+  }
+  .dhikr-week{ margin-top:12px; display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:8px;}  
+  .dhikr-day{ background:#0f0d0a; border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:.78rem;}  
+  .dhikr-day b{ color:var(--gold); display:block; margin-bottom:4px;}  
+  .dhikr-day.today{ border-color:var(--gold);}  
+  .hidden{ display:none !important;}  
+  @media (max-width:600px){
+    header h1{ font-size:1.5rem;}  
+    .page-frame{ min-height:280px;}
+  }
+</style>
+</head>
+<body>
+<div class="pattern-veil"></div>
+
+<header>
+  <h1>تلاوت نور</h1>
+  <p>مصحف شریف · ترجمه فارسی · تلاوت زنده و برخط</p>
+  <p class="dedication">سازنده: امیر علی حزباوی — به نیابت از مرحوم حاج جلیل حزباوی</p>
+</header>
+
+<nav>
+  <button data-tab="quran" class="active">مصحف</button>
+  <button data-tab="radio">رادیو قرآن</button>
+  <button data-tab="support">حمایت از ما</button>
+</button>
+
+<main>
+
+  <!-- ================= QURAN TAB ================= -->
+  <section id="tab-quran">
+
+    <div class="card" id="dhikrCard">
+      <h2>ذکر امروز — <span id="todayName"></span></h2>
+      <div id="todayDhikr" class="dhikr-today"></div>
+      <div class="dhikr-week" id="weekDhikr"></div>
+    </div>
+
+    <div class="card">
+      <h2>جستجو</h2>
+      <div class="row">
+        <select id="surahSelect"></select>
+        <input id="pageInput" type="number" min="1" max="604" placeholder="شماره صفحه (۱ تا ۶۰۴)">
+        <button class="primary" id="goPageBtn">برو به صفحه</button>
+      </div>
+    </div>
+
+    <div class="card page-viewer">
+      <h2>صفحه مصحف</h2>
+      <div class="page-frame" id="pageFrame">
+        <div class="msg">در حال بارگذاری صفحه…</div>
+      </div>
+      <div class="page-nav">
+        <button class="ghost" id="prevPage">◄ صفحه قبل</button>
+        <span id="pageLabel">صفحه ۱</span>
+        <button class="ghost" id="nextPage">صفحه بعد ►</button>
+      </div>
+      <div class="hint" id="imgHint"></div>
+    </div>
+
+    <div class="card">
+      <h2>پخش تلاوت</h2>
+      <div class="row">
+        <select id="reciterSelect"></select>
+        <button class="primary" id="playSurahBtn">پخش سوره جاری</button>
+      </div>
+      <div class="status" id="reciterStatus"></div>
+    </div>
+
+    <div class="card">
+      <h2 id="translationTitle">ترجمه فارسی سوره</h2>
+      <div class="translation-box" id="translationBox">
+        <div class="msg status">برای مشاهده ترجمه، ابتدا یک سوره انتخاب کنید.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>فهرست سوره‌ها</h2>
+      <div class="surah-grid" id="surahGrid"></div>
+    </div>
+  </section>
+
+  <!-- ================= RADIO TAB ================= -->
+  <section id="tab-radio" class="hidden">
+    <div class="card">
+      <h2>رادیوهای زنده قرآن</h2>
+      <div class="row">
+        <select id="radioSelect"><option>در حال دریافت فهرست رادیوها…</option></select>
+        <button class="primary" id="playRadioBtn">پخش زنده</button>
+      </div>
+      <div class="status" id="radioStatus"></div>
+      <div class="hint">
+        فهرست رادیوها به‌صورت زنده دریافت می‌شود. اگر مرورگر شما درخواست را مسدود کند،
+        فهرست جایگزین (استاتیک) نمایش داده خواهد شد.
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SUPPORT TAB ================= -->
+  <section id="tab-support" class="hidden">
+    <div class="card donate-box">
+      <h2>حمایت از این پروژه</h2>
+      <p>در صورت تمایل به حمایت مالی از توسعه و نگهداری این برنامه، می‌توانید از طریق شماره کارت زیر اقدام کنید:</p>
+      <div class="card-number" id="cardNumber">5022 2915 5581 0827</div>
+      <button class="ghost" id="copyCardBtn">کپی شماره کارت</button>
+      <p class="status" style="margin-top:14px;">پاداش شما، اجر معنوی و دعای خیر این پروژه است. جزاکم الله خیرا</p>
+    </div>
+  </section>
+
+</main>
+
+<div id="audioBar" class="hidden">
+  <span class="title" id="audioTitle">در حال پخش…</span>
+  <audio id="player" controls></audio>
+  <button class="ghost" id="closeAudio">✕</button>
+</div>
+
+<footer>تلاوت نور · ساخته‌شده با ﷽ توسط امیر علی حزباوی به نیابت از مرحوم حاج جلیل حزباوی</footer>
+
+<script>
+/* =========================================================
+   ذکر روزهای هفته (بر پایه اذکار مأثور مشهور هفته)
+   ایندکس مطابق خروجی Date.getDay() جاوااسکریپت:
+   ۰=یکشنبه، ۱=دوشنبه، ۲=سه‌شنبه، ۳=چهارشنبه، ۴=پنجشنبه، ۵=جمعه، ۶=شنبه
+   ========================================================= */
+const DAILY_DHIKR = [
+  {day:"یکشنبه", dhikr:"یا ذَا الْجَلالِ وَ الْاِکْرام"},
+  {day:"دوشنبه", dhikr:"یا قاضِیَ الْحاجات"},
+  {day:"سه‌شنبه", dhikr:"یا اَرْحَمَ الرّاحِمین"},
+  {day:"چهارشنبه", dhikr:"یا حَیُّ یا قَیُّوم"},
+  {day:"پنجشنبه", dhikr:"لا اِلهَ اِلاَّ اللّهُ الْمَلِکُ الْحَقُّ الْمُبین"},
+  {day:"جمعه", dhikr:"اَللّهُمَّ صَلِّ عَلی مُحَمَّدٍ وَ آلِ مُحَمَّدٍ وَ عَجِّلْ فَرَجَهُم"},
+  {day:"شنبه", dhikr:"یا رَبَّ الْعالَمین"}
+];
+
+function renderDhikr(){
+  const idx = new Date().getDay();
+  const today = DAILY_DHIKR[idx];
+  document.getElementById('todayName').textContent = today.day;
+  document.getElementById('todayDhikr').textContent = today.dhikr;
+  document.getElementById('weekDhikr').innerHTML = DAILY_DHIKR.map((d,i)=>
+    `<div class="dhikr-day${i===idx?' today':''}"><b>${d.day}</b>${d.dhikr}</div>`
+  ).join('');
+}
+
+/* =========================================================
+   داده پایه سوره‌ها: شماره، نام عربی، نام فارسی، تعداد آیات،
+   شماره صفحه شروع در مصحف عثمانی استاندارد ۶۰۴ صفحه‌ای
+   ========================================================= */
+const SURAHS = [
+[1,"الفاتحة","فاتحه",7,1],[2,"البقرة","بقره",286,2],[3,"آل عمران","آل عمران",200,50],
+[4,"النساء","نساء",176,77],[5,"المائدة","مائده",120,106],[6,"الأنعام","انعام",165,128],
+[7,"الأعراف","اعراف",206,151],[8,"الأنفال","انفال",75,177],[9,"التوبة","توبه",129,187],
+[10,"يونس","یونس",109,208],[11,"هود","هود",123,221],[12,"يوسف","یوسف",111,235],
+[13,"الرعد","رعد",43,249],[14,"ابراهيم","ابراهیم",52,255],[15,"الحجر","حجر",99,262],
+[16,"النحل","نحل",128,267],[17,"الإسراء","اسراء",111,282],[18,"الكهف","کهف",110,293],
+[19,"مريم","مریم",98,305],[20,"طه","طه",135,312],[21,"الأنبياء","انبیاء",112,322],
+[22,"الحج","حج",78,332],[23,"المؤمنون","مؤمنون",118,342],[24,"النور","نور",64,350],
+[25,"الفرقان","فرقان",77,359],[26,"الشعراء","شعراء",227,367],[27,"النمل","نمل",93,377],
+[28,"القصص","قصص",88,385],[29,"العنكبوت","عنکبوت",69,396],[30,"الروم","روم",60,404],
+[31,"لقمان","لقمان",34,411],[32,"السجدة","سجده",30,415],[33,"الأحزاب","احزاب",73,418],
+[34,"سبإ","سبأ",54,428],[35,"فاطر","فاطر",45,434],[36,"يس","یس",83,440],
+[37,"الصافات","صافات",182,446],[38,"ص","ص",88,453],[39,"الزمر","زمر",75,458],
+[40,"غافر","غافر",85,467],[41,"فصلت","فصلت",54,477],[42,"الشورى","شوری",53,483],
+[43,"الزخرف","زخرف",89,489],[44,"الدخان","دخان",59,496],[45,"الجاثية","جاثیه",37,499],
+[46,"الأحقاف","احقاف",35,502],[47,"محمد","محمد",38,507],[48,"الفتح","فتح",29,511],
+[49,"الحجرات","حجرات",18,515],[50,"ق","ق",45,518],[51,"الذاريات","ذاریات",60,520],
+[52,"الطور","طور",49,523],[53,"النجم","نجم",62,526],[54,"القمر","قمر",55,528],
+[55,"الرحمن","الرحمن",78,531],[56,"الواقعة","واقعه",96,534],[57,"الحديد","حدید",29,537],
+[58,"المجادلة","مجادله",22,542],[59,"الحشر","حشر",24,545],[60,"الممتحنة","ممتحنه",13,549],
+[61,"الصف","صف",14,551],[62,"الجمعة","جمعه",11,553],[63,"المنافقون","منافقون",11,554],
+[64,"التغابن","تغابن",18,556],[65,"الطلاق","طلاق",12,558],[66,"التحريم","تحریم",12,560],
+[67,"الملك","ملک",30,562],[68,"القلم","قلم",52,564],[69,"الحاقة","حاقه",52,566],
+[70,"المعارج","معارج",44,568],[71,"نوح","نوح",28,570],[72,"الجن","جن",28,572],
+[73,"المزمل","مزمل",20,574],[74,"المدثر","مدثر",56,575],[75,"القيامة","قیامه",40,577],
+[76,"الانسان","انسان",31,578],[77,"المرسلات","مرسلات",50,580],[78,"النبإ","نبأ",40,582],
+[79,"النازعات","نازعات",46,583],[80,"عبس","عبس",42,585],[81,"التكوير","تکویر",29,586],
+[82,"الإنفطار","انفطار",19,587],[83,"المطففين","مطففین",36,587],[84,"الإنشقاق","انشقاق",25,589],
+[85,"البروج","بروج",22,590],[86,"الطارق","طارق",17,591],[87,"الأعلى","اعلی",19,591],
+[88,"الغاشية","غاشیه",26,592],[89,"الفجر","فجر",30,593],[90,"البلد","بلد",20,594],
+[91,"الشمس","شمس",15,595],[92,"الليل","لیل",21,595],[93,"الضحى","ضحی",11,596],
+[94,"الشرح","شرح",8,596],[95,"التين","تین",8,597],[96,"العلق","علق",19,597],
+[97,"القدر","قدر",5,598],[98,"البينة","بینه",8,598],[99,"الزلزلة","زلزال",8,599],
+[100,"العاديات","عادیات",11,599],[101,"القارعة","قارعه",11,600],[102,"التكاثر","تکاثر",8,600],
+[103,"العصر","عصر",3,601],[104,"الهمزة","همزه",9,601],[105,"الفيل","فیل",5,601],
+[106,"قريش","قریش",4,602],[107,"الماعون","ماعون",7,602],[108,"الكوثر","کوثر",3,602],
+[109,"الكافرون","کافرون",6,603],[110,"النصر","نصر",3,603],[111,"المسد","مسد",5,603],
+[112,"الإخلاص","اخلاص",4,604],[113,"الفلق","فلق",5,604],[114,"الناس","ناس",6,604]
+];
+
+/* =========================================================
+   قاریان: تلاش برای دریافت زنده از وب‌سرویس + فهرست پشتیبان
+   (base هر قاری با شماره سوره سه‌رقمی + .mp3 ترکیب می‌شود)
+   ========================================================= */
+const FALLBACK_RECITERS = [
+  {name:"مشاری راشد العفاسی", base:"https://server8.mp3quran.net/afs/"},
+  {name:"سعد الغامدی", base:"https://server7.mp3quran.net/s_gmd/"},
+  {name:"عبدالباسط عبدالصمد (مرتل)", base:"https://server7.mp3quran.net/basit/Almusshaf-Al-Mojawwad/"},
+  {name:"ماهر المعیقلی", base:"https://server12.mp3quran.net/maher/"},
+  {name:"ابوبکر الشاطری", base:"https://server11.mp3quran.net/shatri/"},
+  {name:"ناصر القطامی", base:"https://server6.mp3quran.net/qtm/"},
+  {name:"یاسر الدوسری", base:"https://server11.mp3quran.net/yasser/"},
+  {name:"سعود الشریم", base:"https://server9.mp3quran.net/shur/"}
+];
+
+const FALLBACK_RADIOS = [
+  {name:"رادیو قرآن کریم", url:"https://qurango.net/radio/tarateel"},
+];
+
+let currentPage = 1;
+let currentSurah = SURAHS[0];
+let RECITERS = [];
+let RADIOS = [];
+
+/* ---------- تب‌ها ---------- */
+document.querySelectorAll('nav button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    ['quran','radio','support'].forEach(t=>{
+      document.getElementById('tab-'+t).classList.toggle('hidden', t!==btn.dataset.tab);
+    });
+  });
+});
+
+/* ---------- ساخت لیست سوره‌ها ---------- */
+function surahForPage(page){
+  let s = SURAHS[0];
+  for(const row of SURAHS){ if(row[4] <= page) s = row; else break; }
+  return s;
+}
+
+function fillSurahSelect(){
+  const sel = document.getElementById('surahSelect');
+  sel.innerHTML = SURAHS.map(s=>`<option value="${s[0]}">${s[0]}. ${s[2]} (${s[1]})</option>`).join('');
+  sel.addEventListener('change', ()=>{
+    const s = SURAHS.find(x=>x[0]==sel.value);
+    currentSurah = s;
+    currentPage = s[4];
+    renderPage();
+    loadTranslation(s[0]);
+  });
+}
+
+function fillSurahGrid(){
+  const grid = document.getElementById('surahGrid');
+  grid.innerHTML = SURAHS.map(s=>
+    `<div class="surah-chip" data-id="${s[0]}"><span>${s[0]}. ${s[2]}</span><b>ص ${s[4]}</b></div>`
+  ).join('');
+  grid.querySelectorAll('.surah-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const s = SURAHS.find(x=>x[0]==chip.dataset.id);
+      currentSurah = s; currentPage = s[4];
+      document.getElementById('surahSelect').value = s[0];
+      renderPage(); loadTranslation(s[0]);
+      document.querySelector('nav button[data-tab="quran"]').click();
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+}
+
+/* ---------- نمایش صفحه مصحف ----------
+   توجه صادقانه: بعد از دو بار تلاش برای نمایش تصویر اسکن‌شده از منابع
+   عمومی (که در محیط شما هم بارگذاری نشد)، به‌جای ادامه حدس‌زدن
+   یک آدرس تصویر که نمی‌توانم در یک مرورگر واقعی تست کنم، متن خود صفحه
+   را از همان وب‌سرویس مستند و آزمایش‌شده‌ای که برای ترجمه استفاده می‌کنید
+   می‌گیرم و با فونت اختصاصی قرآنی (Amiri) به شکل
+   یک صفحه مصحف نمایش می‌دهم. این روش تضمین می‌کند صفحه هرگز خالی
+   نمی‌ماند، چون به یک فایل تصویر حدسی روی سرور شخص ثالث وابسته نیست.
+   یک دکمه هم گذاشته‌ام که در صورت تمایل، تصویر اسکن را هم امتحان کند. */
+let FULL_QURAN = null; // کل قرآن (متن عثمانی) پس از یک بار دریافت، کش می‌شود
+
+async function loadFullQuran(){
+  if(FULL_QURAN) return FULL_QURAN;
+  const res = await fetch('https://api.alquran.cloud/v1/quran/quran-uthmani');
+  if(!res.ok) throw new Error('network');
+  const data = await res.json();
+  FULL_QURAN = [];
+  data.data.surahs.forEach(s=>{
+    s.ayahs.forEach(a=>{
+      FULL_QURAN.push({surah:s.number, surahName:s.name, numberInSurah:a.numberInSurah, text:a.text, page:a.page});
+    });
+  });
+  return FULL_QURAN;
+}
+
+function itseePageUrl(page){
+  const p = String(page).padStart(3,'0');
+  return `https://cdn.jsdelivr.net/gh/GovarJabbar/Quran-PNG@master/${p}.png`;
+}
+
+async function renderPage(){
+  currentSurah = surahForPage(currentPage);
+  document.getElementById('pageLabel').textContent = `صفحه ${currentPage} — سوره ${currentSurah[2]}`;
+  document.getElementById('pageInput').value = currentPage;
+  document.getElementById('surahSelect').value = currentSurah[0];
+
+  const frame = document.getElementById('pageFrame');
+  frame.innerHTML = `<div class="msg">در حال بارگذاری صفحه ${currentPage}…</div>`;
+
+  try{
+    const quran = await loadFullQuran();
+    const ayahs = quran.filter(a=>a.page === currentPage);
+    if(!ayahs.length){
+      frame.innerHTML = `<div class="msg">آیه‌ای برای این صفحه یافت نشد.</div>`;
+    }else{
+      frame.innerHTML = `<div class="mushaf-text">` + ayahs.map(a=>
+        `${a.text} <span class="ayah-num">${toArabicDigits(a.numberInSurah)}</span>`
+      ).join(' ') + `</div>`;
+    }
+  }catch(e){
+    frame.innerHTML = `<div class="msg">
+      متن صفحه دریافت نشد (احتمالاً قطعی اینترنت). لطفاً دوباره تلاش کنید.
+    </div>`;
+  }
+
+  document.getElementById('imgHint').innerHTML =
+    `این صفحه از روی متن رسمی عثمانی ساخته شده تا همیشه قابل‌نمایش باشد. ` +
+    `<button class="ghost" id="tryScanBtn" style="margin-inline-start:8px; padding:4px 10px; font-size:.75rem;">نمایش تصویر اسکن (آزمایشی)</button>`;
+  const scanBtn = document.getElementById('tryScanBtn');
+  if(scanBtn) scanBtn.onclick = tryShowScanImage;
+}
+
+function tryShowScanImage(){
+  const frame = document.getElementById('pageFrame');
+  const prevContent = frame.innerHTML;
+  frame.innerHTML = `<div class="msg">در حال تلاش برای بارگذاری تصویر اسکن…</div>`;
+  const img = new Image();
+  let triedFallback = false;
+  img.onload = ()=>{ frame.innerHTML=''; frame.appendChild(img); };
+  img.onerror = ()=>{
+    if(!triedFallback){
+      triedFallback = true;
+      const p = String(currentPage).padStart(3,'0');
+      img.src = `https://raw.githubusercontent.com/GovarJabbar/Quran-PNG/master/${p}.png`;
+      return;
+    }
+    frame.innerHTML = prevContent; // برگشت به نمایش متنی که همیشه کار می‌کند
+  };
+  img.alt = "صفحه " + currentPage + " قرآن کریم";
+  img.src = itseePageUrl(currentPage);
+}
+
+function toArabicDigits(n){
+  return String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+}
+
+document.getElementById('prevPage').onclick = ()=>{ if(currentPage>1){currentPage--; renderPage(); loadTranslation(surahForPage(currentPage)[0]);} };
+document.getElementById('nextPage').onclick = ()=>{ if(currentPage<604){currentPage++; renderPage(); loadTranslation(surahForPage(currentPage)[0]);} };
+document.getElementById('goPageBtn').onclick = ()=>{
+  const v = parseInt(document.getElementById('pageInput').value, 10);
+  if(v>=1 && v<=604){ currentPage=v; renderPage(); loadTranslation(surahForPage(v)[0]); }
+};
+
+/* ---------- ترجمه فارسی (دریافت زنده) ---------- */
+async function loadTranslation(surahId){
+  const box = document.getElementById('translationBox');
+  const s = SURAHS.find(x=>x[0]==surahId);
+  document.getElementById('translationTitle').textContent = `ترجمه فارسی سوره ${s[2]}`;
+  box.innerHTML = `<div class="status">در حال دریافت ترجمه…</div>`;
+  try{
+    const res = await fetch(`https://api.alquran.cloud/v1/surah/${surahId}/fa.makarem`);
+    if(!res.ok) throw new Error('network');
+    const data = await res.json();
+    const ayahs = data.data.ayahs;
+    box.innerHTML = ayahs.map(a=>`<div class="ayah"><b>${a.numberInSurah}.</b>${a.text}</div>`).join('');
+  }catch(e){
+    box.innerHTML = `<div class="status">
+      دریافت ترجمه ناموفق بود (ممکن است به‌دلیل قطعی اینترنت باشد). لطفاً دوباره تلاش کنید.
+    </div>`;
+  }
+}
+
+/* ---------- قاریان و پخش تلاوت ---------- */
+async function loadReciters(){
+  const sel = document.getElementById('reciterSelect');
+  try{
+    const res = await fetch('https://www.mp3quran.net/api/v3/reciters?language=ar');
+    if(!res.ok) throw new Error();
+    const data = await res.json();
+    RECITERS = data.reciters
+      .filter(r=>r.moshaf && r.moshaf.length)
+      .slice(0,60)
+      .map(r=>({name:r.name, base:r.moshaf[0].server}));
+  }catch(e){
+    RECITERS = FALLBACK_RECITERS;
+    document.getElementById('reciterStatus').textContent = 'فهرست زنده قاریان دریافت نشد؛ از فهرست پشتیبان استفاده شد.';
+  }
+  sel.innerHTML = RECITERS.map((r,i)=>`<option value="${i}">${r.name}</option>`).join('');
+}
+
+document.getElementById('playSurahBtn').onclick = ()=>{
+  const idx = document.getElementById('reciterSelect').value;
+  const r = RECITERS[idx];
+  if(!r) return;
+  const num = String(currentSurah[0]).padStart(3,'0');
+  const url = r.base.endsWith('/') ? r.base+num+'.mp3' : r.base+'/'+num+'.mp3';
+  playAudio(url, `${currentSurah[2]} — ${r.name}`);
+};
+
+/* ---------- رادیو زنده ---------- */
+async function loadRadios(){
+  const sel = document.getElementById('radioSelect');
+  try{
+    const res = await fetch('https://www.mp3quran.net/api/v3/radios?language=ar');
+    if(!res.ok) throw new Error();
+    const data = await res.json();
+    RADIOS = data.radios.map(r=>({name:r.name, url:r.url}));
+  }catch(e){
+    RADIOS = FALLBACK_RADIOS;
+    document.getElementById('radioStatus').textContent = 'فهرست زنده رادیوها دریافت نشد؛ از فهرست پشتیبان استفاده شد.';
+  }
+  sel.innerHTML = RADIOS.map((r,i)=>`<option value="${i}">${r.name}</option>`).join('');
+}
+document.getElementById('playRadioBtn').onclick = ()=>{
+  const idx = document.getElementById('radioSelect').value;
+  const r = RADIOS[idx];
+  if(!r) return;
+  playAudio(r.url, `پخش زنده: ${r.name}`);
+};
+
+/* ---------- پخش‌کننده مشترک ---------- */
+function playAudio(url, title){
+  const bar = document.getElementById('audioBar');
+  const player = document.getElementById('player');
+  document.getElementById('audioTitle').textContent = title;
+  player.src = url;
+  player.play().catch(()=>{});
+  bar.classList.remove('hidden');
+}
+document.getElementById('closeAudio').onclick = ()=>{
+  const player = document.getElementById('player');
+  player.pause(); player.src='';
+  document.getElementById('audioBar').classList.add('hidden');
+};
+
+/* ---------- حمایت مالی ---------- */
+document.getElementById('copyCardBtn').onclick = ()=>{
+  const num = document.getElementById('cardNumber').textContent.replace(/-/g,'');
+  navigator.clipboard.writeText(num).then(()=>{
+    const btn = document.getElementById('copyCardBtn');
+    const old = btn.textContent;
+    btn.textContent = 'کپی شد ✓';
+    setTimeout(()=>btn.textContent=old, 1600);
+  });
+};
+
+/* ---------- شروع برنامه ---------- */
+renderDhikr();
+fillSurahSelect();
+fillSurahGrid();
+renderPage();
+loadTranslation(1);
+loadReciters();
+loadRadios();
+</script>
+</body>
+</html>
