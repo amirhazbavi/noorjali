@@ -159,12 +159,14 @@
   .hidden{ display:none !important;}  
   @media (max-width:600px){
     header h1{ font-size:1.5rem;}  
-    .page-frame{ min-height:280px;}
+    .  page-frame{ min-height:280px;}
   }
 </style>
+
+<meta name="google-site-verification" content="GM6cW7NOeJv5e_XrhieqxfnHqnN25ozSpOmGew2QOKw">
+
 </head>
-  <meta name="google-site-verification" content="GM6cW7NOeJv5e_XrhieqxfnHqnN25ozSpOmGew2QOKw">
-</head>
+
 <body>
 <div class="pattern-veil"></div>
 
@@ -178,72 +180,7 @@
   <button data-tab="quran" class="active">مصحف</button>
   <button data-tab="radio">رادیو قرآن</button>
   <button data-tab="support">حمایت از ما</button>
-</button>
-
-<main>
-
-  <!-- ================= QURAN TAB ================= -->
-  <section id="tab-quran">
-
-    <div class="card" id="dhikrCard">
-      <h2>ذکر امروز — <span id="todayName"></span></h2>
-      <div id="todayDhikr" class="dhikr-today"></div>
-      <div class="dhikr-week" id="weekDhikr"></div>
-    </div>
-
-    <div class="card">
-      <h2>جستجو</h2>
-      <div class="row">
-        <select id="surahSelect"></select>
-        <input id="pageInput" type="number" min="1" max="604" placeholder="شماره صفحه (۱ تا ۶۰۴)">
-        <button class="primary" id="goPageBtn">برو به صفحه</button>
-      </div>
-    </div>
-
-    <div class="card page-viewer">
-      <h2>صفحه مصحف</h2>
-      <div class="page-frame" id="pageFrame">
-        <div class="msg">در حال بارگذاری صفحه…</div>
-      </div>
-      <div class="page-nav">
-        <button class="ghost" id="prevPage">◄ صفحه قبل</button>
-        <span id="pageLabel">صفحه ۱</span>
-        <button class="ghost" id="nextPage">صفحه بعد ►</button>
-      </div>
-      <div class="hint" id="imgHint"></div>
-    </div>
-
-    <div class="card">
-      <h2>پخش تلاوت</h2>
-      <div class="row">
-        <select id="reciterSelect"></select>
-        <button class="primary" id="playSurahBtn">پخش سوره جاری</button>
-      </div>
-      <div class="status" id="reciterStatus"></div>
-    </div>
-
-    <div class="card">
-      <h2 id="translationTitle">ترجمه فارسی سوره</h2>
-      <div class="translation-box" id="translationBox">
-        <div class="msg status">برای مشاهده ترجمه، ابتدا یک سوره انتخاب کنید.</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>فهرست سوره‌ها</h2>
-      <div class="surah-grid" id="surahGrid"></div>
-    </div>
-  </section>
-
-  <!-- ================= RADIO TAB ================= -->
-  <section id="tab-radio" class="hidden">
-    <div class="card">
-      <h2>رادیوهای زنده قرآن</h2>
-      <div class="row">
-        <select id="radioSelect"><option>در حال دریافت فهرست رادیوها…</option></select>
-        <button class="primary" id="playRadioBtn">پخش زنده</button>
-      </div>
-      <div class="status" id="radioStatus"></div>
+</nav>      <div class="status" id="radioStatus"></div>
       <div class="hint">
         فهرست رادیوها به‌صورت زنده دریافت می‌شود. اگر مرورگر شما درخواست را مسدود کند،
         فهرست جایگزین (استاتیک) نمایش داده خواهد شد.
