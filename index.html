@@ -16,6 +16,8 @@
 <meta property="og:title" content="تلاوت نور | مصحف شریف و تلاوت زنده قرآن کریم">
 <meta property="og:description" content="مصحف کامل با ترجمه فارسی، تلاوت قاریان مختلف، رادیوی زنده قرآن و ذکر روز — رایگان و واکنش‌گرا.">
 <meta property="og:locale" content="fa_IR">
+<meta property="og:url" content="https://amirhazbavi.github.io/noorjali/">
+<link rel="canonical" href="https://amirhazbavi.github.io/noorjali/">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="تلاوت نور | مصحف شریف و تلاوت زنده قرآن کریم">
 <meta name="twitter:description" content="مصحف کامل با ترجمه فارسی، تلاوت قاریان مختلف، رادیوی زنده قرآن و ذکر روز.">
@@ -760,7 +762,7 @@
   <button class="ghost" id="closeAudio">✕</button>
 </div>
 
-<footer>تلاوت نور · ساخته‌شده با ﷽ توسط امیر علی حزباوی به نیابت از مرحوم حاج جلیل حزباوی</footer>
+<footer>تلاوت نور · amirhazbavi.github.io/noorjali · ساخته‌شده با ﷽ توسط امیر علی حزباوی به نیابت از مرحوم حاج جلیل حزباوی</footer>
 
 <script>
 /* =========================================================
@@ -963,7 +965,19 @@ function markPageRead(page){
   const pages = new Set(getReadPages());
   pages.add(page);
   try{ localStorage.setItem('ln_readPages', JSON.stringify([...pages])); }catch(e){}
+  updateStreak();
   renderKhatm();
+  if(typeof renderStats === 'function') renderStats();
+  if(pages.size === 604){
+    try{
+      const n = getKhatmCompletions() + 1;
+      localStorage.setItem('ln_khatmCount', String(n));
+      localStorage.setItem('ln_readPages', '[]');
+    }catch(e){}
+    alert('تبریک! یک ختم کامل قرآن را به پایان رساندید. شمارنده صفحات برای ختم بعدی از نو شروع شد.');
+    renderKhatm();
+    if(typeof renderStats === 'function') renderStats();
+  }
 }
 function renderKhatm(){
   const count = getReadPages().length;
@@ -1322,11 +1336,18 @@ document.getElementById('customTvBtn').onclick = ()=>{
 };
 
 /* ---------- پخش‌کننده مشترک ---------- */
-function playAudio(url, title){
+async function playAudio(url, title){
   const bar = document.getElementById('audioBar');
   const player = document.getElementById('player');
   document.getElementById('audioTitle').textContent = title;
-  player.src = url;
+  let finalUrl = url;
+  if('caches' in window){
+    try{
+      const cached = await caches.match(url);
+      if(cached){ finalUrl = URL.createObjectURL(await cached.blob()); }
+    }catch(e){}
+  }
+  player.src = finalUrl;
   const speedSel = document.getElementById('speedSelect');
   player.playbackRate = speedSel ? (parseFloat(speedSel.value) || 1) : 1;
   const repeatEl = document.getElementById('repeatToggle');
@@ -1578,10 +1599,14 @@ async function shareAyahImage(surahNum, ayahNum, translationText){
 
     ctx.font = '26px Vazirmatn, sans-serif';
     ctx.fillStyle = '#c9a84c';
-    ctx.fillText(`سوره ${s?s[2]:''} — آیه ${toArabicDigits(ayahNum)}`, W/2, H-140);
+    ctx.fillText(`سوره ${s?s[2]:''} — آیه ${toArabicDigits(ayahNum)}`, W/2, H-150);
     ctx.font = '22px Vazirmatn, sans-serif';
     ctx.fillStyle = '#8a7135';
-    ctx.fillText('تلاوت نور', W/2, H-90);
+    ctx.fillText('تلاوت نور', W/2, H-105);
+    ctx.font = '20px Vazirmatn, sans-serif';
+    ctx.direction = 'ltr';
+    ctx.fillStyle = '#6b5c3a';
+    ctx.fillText('amirhazbavi.github.io/noorjali', W/2, H-70);
 
     canvas.toBlob(blob=>{
       const url = URL.createObjectURL(blob);
@@ -1602,6 +1627,310 @@ if('serviceWorker' in navigator){
   });
 }
 
+/* ---------- تم و فونت ---------- */
+function applyTheme(){
+  let theme = 'dark';
+  try{ theme = localStorage.getItem('ln_theme') || 'dark'; }catch(e){}
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeDark').classList.toggle('active', theme==='dark');
+  document.getElementById('themeLight').classList.toggle('active', theme==='light');
+}
+document.getElementById('themeDark').onclick = ()=>{ try{localStorage.setItem('ln_theme','dark');}catch(e){} applyTheme(); };
+document.getElementById('themeLight').onclick = ()=>{ try{localStorage.setItem('ln_theme','light');}catch(e){} applyTheme(); };
+
+function applyArabicFont(){
+  let font = 'Amiri';
+  try{ font = localStorage.getItem('ln_arabicFont') || 'Amiri'; }catch(e){}
+  document.documentElement.style.setProperty('--arabic-font', `'${font}', serif`);
+  const sel = document.getElementById('arabicFontSelect');
+  if(sel) sel.value = font;
+}
+document.getElementById('arabicFontSelect').addEventListener('change', e=>{
+  try{ localStorage.setItem('ln_arabicFont', e.target.value); }catch(e){}
+  applyArabicFont();
+});
+
+/* ---------- تقویم هجری (محاسبه تقریبی جدولی) و شمارش معکوس رمضان ----------
+   این یک تقویم محاسباتی است؛ تاریخ رسمی هلال ممکن است یک روز تفاوت داشته باشد. */
+function gregorianToJulian(y,m,d){
+  if(m<3){ y--; m+=12; }
+  const a = Math.floor(y/100), b = 2-a+Math.floor(a/4);
+  return Math.floor(365.25*(y+4716)) + Math.floor(30.6001*(m+1)) + d + b - 1524;
+}
+function julianToHijri(jd){
+  jd = Math.floor(jd) + 0.5;
+  let l = jd - 1948440 + 10632;
+  const n = Math.floor((l-1)/10631);
+  l = l - 10631*n + 354;
+  const j = Math.floor((10985-l)/5316)*Math.floor((50*l)/17719) + Math.floor(l/5670)*Math.floor((43*l)/15238);
+  l = l - Math.floor((30-j)/15)*Math.floor((17719*j)/50) - Math.floor(j/16)*Math.floor((15238*j)/43) + 29;
+  const month = Math.floor((24*l)/709);
+  const day = l - Math.floor((709*month)/24);
+  const year = 30*n + j - 30;
+  return {year, month, day};
+}
+function hijriToJulian(y,m,d){
+  return Math.floor((11*y+3)/30) + 354*y + 30*m - Math.floor((m-1)/2) + d + 1948440 - 385;
+}
+function julianToGregorian(jd){
+  jd = Math.floor(jd+0.5);
+  const a = jd + 32044;
+  const b = Math.floor((4*a+3)/146097);
+  const c = a - Math.floor((146097*b)/4);
+  const dd = Math.floor((4*c+3)/1461);
+  const e = c - Math.floor((1461*dd)/4);
+  const m = Math.floor((5*e+2)/153);
+  const day = e - Math.floor((153*m+2)/5) + 1;
+  const month = m + 3 - 12*Math.floor(m/10);
+  const year = 100*b + dd - 4800 + Math.floor(m/10);
+  return {year, month, day};
+}
+const HIJRI_MONTHS = ['محرم','صفر','ربیع‌الاول','ربیع‌الثانی','جمادی‌الاول','جمادی‌الثانی','رجب','شعبان','رمضان','شوال','ذی‌القعده','ذی‌الحجه'];
+
+function renderHijri(){
+  const today = new Date();
+  const jd = gregorianToJulian(today.getFullYear(), today.getMonth()+1, today.getDate());
+  const h = julianToHijri(jd);
+  let targetYear = h.year;
+  if(h.month > 9 || (h.month === 9)) targetYear = h.year + 1;
+  if(h.month < 9) targetYear = h.year;
+  let ramadanJD;
+  if(h.month === 9){
+    ramadanJD = null; // همین الان رمضان است
+  }else{
+    ramadanJD = hijriToJulian(targetYear, 9, 1);
+  }
+  let extra = '';
+  if(ramadanJD){
+    const daysLeft = ramadanJD - jd;
+    const g = julianToGregorian(ramadanJD);
+    extra = `<br><span style="font-size:.82rem; color:var(--text-dim)">${toArabicDigits(daysLeft)} روز تا رمضان ${toArabicDigits(targetYear)} ه.ق (حدوداً ${toArabicDigits(g.day)}/${toArabicDigits(g.month)}/${toArabicDigits(g.year)})</span>`;
+  }else{
+    extra = `<br><span style="font-size:.82rem; color:var(--gold-bright)">🌙 اکنون ماه مبارک رمضان است</span>`;
+  }
+  document.getElementById('hijriBanner').innerHTML =
+    `<b>${toArabicDigits(h.day)} ${HIJRI_MONTHS[h.month-1]} ${toArabicDigits(h.year)} ه.ق</b>${extra}`;
+}
+
+/* ---------- اسماءالحسنی ---------- */
+const ASMA_AL_HUSNA = [
+["الله","ذات اقدس خداوند"],["الرحمن","بخشنده"],["الرحیم","مهربان"],["الملک","فرمانروای مطلق"],
+["القدوس","پاک و منزه"],["السلام","سلامتی‌بخش"],["المؤمن","امان‌بخش"],["المهیمن","نگهبان"],
+["العزیز","شکست‌ناپذیر"],["الجبار","تسلط‌گر"],["المتکبر","بزرگی‌بخش"],["الخالق","آفریننده"],
+["البارئ","پدیدآورنده"],["المصور","صورتگر"],["الغفار","بسیار آمرزنده"],["القهار","چیره و غالب"],
+["الوهاب","بسیار بخشنده"],["الرزاق","روزی‌رسان"],["الفتاح","گشاینده"],["العلیم","دانا"],
+["القابض","تنگ‌گیرنده"],["الباسط","گشاده‌کننده"],["الخافض","پایین‌آورنده"],["الرافع","بالابرنده"],
+["المعز","عزت‌بخش"],["المذل","خوارکننده"],["السمیع","شنوا"],["البصیر","بینا"],
+["الحکم","داور"],["العدل","دادگر"],["اللطیف","مهربان و دقیق"],["الخبیر","آگاه"],
+["الحلیم","بردبار"],["العظیم","بزرگ"],["الغفور","آمرزنده"],["الشکور","قدردان"],
+["العلی","والامرتبه"],["الکبیر","بزرگ‌تر از هر بزرگ"],["الحفیظ","نگهدارنده"],["المقیت","قوت‌بخش"],
+["الحسیب","حسابرس"],["الجلیل","باشکوه"],["الکریم","بخشنده و گرامی"],["الرقیب","مراقب"],
+["المجیب","اجابت‌کننده"],["الواسع","گسترده و بی‌کران"],["الحکیم","فرزانه"],["الودود","بسیار دوست‌دار"],
+["المجید","باشکوه و بزرگوار"],["الباعث","برانگیزاننده"],["الشهید","گواه"],["الحق","حقیقت مطلق"],
+["الوکیل","کارساز"],["القوی","نیرومند"],["المتین","استوار"],["الولی","سرپرست و یاور"],
+["الحمید","ستوده"],["المحصی","شمارنده هر چیز"],["المبدئ","آغازکننده آفرینش"],["المعید","بازگرداننده"],
+["المحیی","زنده‌کننده"],["الممیت","میراننده"],["الحی","زنده جاودان"],["القیوم","پاینده و برپادارنده"],
+["الواجد","یابنده هر چیز"],["الماجد","بزرگوار"],["الواحد","یگانه"],["الاحد","یکتا"],
+["الصمد","بی‌نیاز و پناه همه"],["القادر","توانا"],["المقتدر","چیره و مقتدر"],["المقدم","پیش‌اندازنده"],
+["المؤخر","پس‌اندازنده"],["الأول","نخستین بدون آغاز"],["الآخر","واپسین بدون پایان"],["الظاهر","آشکار"],
+["الباطن","پنهان"],["الوالی","زمامدار"],["المتعالی","برتر از هر وصف"],["البر","نیکوکار"],
+["التواب","توبه‌پذیر"],["المنتقم","انتقام‌گیرنده از ستمگر"],["العفو","بسیار بخشاینده"],["الرؤوف","مهربان"],
+["مالک الملک","فرمانروای هستی"],["ذوالجلال والاکرام","صاحب شکوه و بزرگواری"],["المقسط","دادگستر"],["الجامع","گردآورنده"],
+["الغنی","بی‌نیاز"],["المغنی","بی‌نیازکننده"],["المانع","بازدارنده"],["الضار","صاحب زیان به مصلحت"],
+["النافع","سودرسان"],["النور","نور"],["الهادی","راهنما"],["البدیع","بی‌مانند در آفرینش"],
+["الباقی","جاودان و پاینده"],["الوارث","وارث نهایی هر چیز"],["الصبور","بسیار شکیبا"]
+];
+function renderAsma(){
+  const dayIndex = Math.floor(Date.now()/86400000) % ASMA_AL_HUSNA.length;
+  const [ar, fa] = ASMA_AL_HUSNA[dayIndex];
+  document.getElementById('asmaOfDay').innerHTML = `${ar}<br><span style="font-size:1rem;color:var(--text-dim)">${fa}</span>`;
+  document.getElementById('asmaGrid').innerHTML = ASMA_AL_HUSNA.map(([ar,fa])=>
+    `<div class="asma-item"><div class="ar">${ar}</div><div class="fa">${fa}</div></div>`
+  ).join('');
+}
+document.getElementById('toggleAsmaList').onclick = function(){
+  const grid = document.getElementById('asmaGrid');
+  grid.classList.toggle('hidden');
+  this.textContent = grid.classList.contains('hidden') ? 'نمایش هر ۹۹ نام' : 'بستن فهرست';
+};
+
+/* ---------- مرور موضوعی آیات ---------- */
+async function loadTopics(){
+  const list = document.getElementById('topicList');
+  const data = await safeJson(`${ISLAMIC_APP}/topics`);
+  let topics = (data && data.data && (data.data.topics || data.data)) || [];
+  if(!Array.isArray(topics) || !topics.length){
+    list.innerHTML = '<span class="status">دریافت موضوعات در حال حاضر ممکن نشد.</span>';
+    return;
+  }
+  topics = topics.slice(0,36);
+  list.innerHTML = topics.map((t,i)=>{
+    const name = t.name || t.title || t.slug || 'موضوع';
+    const slug = t.slug || t.id || name;
+    return `<span class="topic-item" data-slug="${slug}">${name}</span>`;
+  }).join('');
+}
+document.getElementById('topicList').addEventListener('click', async e=>{
+  const item = e.target.closest('.topic-item');
+  if(!item) return;
+  document.querySelectorAll('#topicList .topic-item').forEach(x=>x.classList.remove('active'));
+  item.classList.add('active');
+  const results = document.getElementById('topicResults');
+  results.innerHTML = '<div class="shimmer" style="width:80%"></div>';
+  const data = await safeJson(`${ISLAMIC_APP}/topics/${encodeURIComponent(item.dataset.slug)}`);
+  const verses = (data && data.data && (data.data.verses || data.data.ayahs || data.data)) || [];
+  if(!Array.isArray(verses) || !verses.length){
+    results.innerHTML = '<div class="status">آیه‌ای برای این موضوع یافت نشد.</div>';
+    return;
+  }
+  results.innerHTML = verses.slice(0,20).map(v=>{
+    const key = v.verse_key || `${v.surah||''}:${v.ayah||v.numberInSurah||''}`;
+    const text = v.text_uthmani || v.text || '';
+    return `<div class="search-result-item" data-key="${key}"><b>${key}</b><div class="snippet-ar">${text}</div></div>`;
+  }).join('');
+});
+document.getElementById('topicResults').addEventListener('click', e=>{
+  const item = e.target.closest('.search-result-item');
+  if(!item) return;
+  const [s,a] = (item.dataset.key||'').split(':').map(x=>parseInt(x,10));
+  if(!s) return;
+  const sInfo = SURAHS.find(x=>x[0]===s);
+  if(sInfo){ currentPage = sInfo[4]; renderPage(); loadTranslation(s); window.scrollTo({top:0, behavior:'smooth'}); }
+});
+
+/* ---------- مسجدیاب ---------- */
+document.getElementById('findMosquesBtn').onclick = async ()=>{
+  const status = document.getElementById('mosqueStatus');
+  const list = document.getElementById('mosqueList');
+  status.textContent = 'در حال دریافت موقعیت مکانی…';
+  list.innerHTML = '';
+  try{
+    const coords = await getCoords();
+    status.textContent = 'در حال جستجو…';
+    const data = await safeJson(`${ISLAMIC_APP}/masajid/near?latitude=${coords.latitude}&longitude=${coords.longitude}`);
+    const mosques = (data && data.data && (data.data.masajid || data.data.mosques || data.data)) || [];
+    if(!Array.isArray(mosques) || !mosques.length){
+      status.textContent = 'مسجدی یافت نشد یا این سرویس در حال حاضر در دسترس نیست.';
+      return;
+    }
+    status.textContent = '';
+    list.innerHTML = mosques.slice(0,15).map(m=>
+      `<div class="mosque-item"><b>${m.name||'مسجد'}</b>${m.address||m.vicinity||''}</div>`
+    ).join('');
+  }catch(e){
+    status.textContent = 'دسترسی به موقعیت مکانی ممکن نشد.';
+  }
+};
+
+/* ---------- آمار و انگیزه (streak) ---------- */
+function getStreakData(){
+  try{ return JSON.parse(localStorage.getItem('ln_streak')||'{"count":0,"last":null}'); }catch(e){ return {count:0,last:null}; }
+}
+function updateStreak(){
+  const data = getStreakData();
+  const today = new Date().toDateString();
+  if(data.last === today) return;
+  const yesterday = new Date(Date.now()-86400000).toDateString();
+  data.count = (data.last === yesterday) ? data.count+1 : 1;
+  data.last = today;
+  try{ localStorage.setItem('ln_streak', JSON.stringify(data)); }catch(e){}
+}
+function getKhatmCompletions(){ try{ return parseInt(localStorage.getItem('ln_khatmCount')||'0',10); }catch(e){ return 0; } }
+function renderStats(){
+  const readCount = getReadPages().length;
+  const pct = Math.round((readCount/604)*100);
+  const streak = getStreakData().count;
+  const khatms = getKhatmCompletions();
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-item">صفحات خوانده‌شده<b>${toArabicDigits(readCount)}</b></div>
+    <div class="stat-item">درصد ختم فعلی<b>${toArabicDigits(pct)}٪</b></div>
+    <div class="stat-item">روزهای متوالی<b>${toArabicDigits(streak)}</b></div>
+    <div class="stat-item">ختم‌های کامل‌شده<b>${toArabicDigits(khatms)}</b></div>
+  `;
+}
+
+/* ---------- یادآوری روزانه ---------- */
+function checkDailyReminder(){
+  try{
+    if(localStorage.getItem('ln_reminderOn')!=='1') return;
+    if(!('Notification' in window) || Notification.permission!=='granted') return;
+    const last = parseInt(localStorage.getItem('ln_lastReminder')||'0',10);
+    if(Date.now()-last > 20*3600*1000){
+      new Notification('تلاوت نور', {body:'وقت خواندن قرآن امروزتان رسیده 🌙'});
+      localStorage.setItem('ln_lastReminder', String(Date.now()));
+    }
+  }catch(e){}
+}
+document.getElementById('enableReminderBtn').onclick = async ()=>{
+  const status = document.getElementById('reminderStatus');
+  if(!('Notification' in window)){ status.textContent='مرورگر شما از اعلان پشتیبانی نمی‌کند.'; return; }
+  try{
+    const perm = await Notification.requestPermission();
+    if(perm==='granted'){
+      try{ localStorage.setItem('ln_reminderOn','1'); }catch(e){}
+      status.textContent = 'یادآوری فعال شد.';
+      checkDailyReminder();
+    }else{
+      status.textContent = 'اجازه نمایش اعلان داده نشد.';
+    }
+  }catch(e){
+    status.textContent = 'فعال‌سازی یادآوری ممکن نشد.';
+  }
+};
+
+/* ---------- دانلود آفلاین ---------- */
+function fillOfflineSurahSelect(){
+  document.getElementById('offlineSurahSelect').innerHTML =
+    SURAHS.map(s=>`<option value="${s[0]}">${s[0]}. ${s[2]}</option>`).join('');
+}
+function renderOfflineList(){
+  let list = [];
+  try{ list = JSON.parse(localStorage.getItem('ln_offlineList')||'[]'); }catch(e){}
+  document.getElementById('offlineList').innerHTML = list.length
+    ? list.map(x=>`<div class="dua-item">✅ ${x.name}</div>`).join('')
+    : '<div class="status">هنوز سوره‌ای برای آفلاین ذخیره نشده.</div>';
+}
+document.getElementById('downloadOfflineBtn').onclick = async ()=>{
+  const status = document.getElementById('offlineStatus');
+  const surahNum = parseInt(document.getElementById('offlineSurahSelect').value, 10);
+  const s = SURAHS.find(x=>x[0]===surahNum);
+  const reciterIdx = document.getElementById('reciterSelect').value;
+  const r = RECITERS[reciterIdx];
+  if(!r){ status.textContent = 'ابتدا از تب مصحف یک قاری در بخش «پخش تلاوت» انتخاب کنید.'; return; }
+  const num = String(surahNum).padStart(3,'0');
+  const url = r.base.endsWith('/') ? r.base+num+'.mp3' : r.base+'/'+num+'.mp3';
+  status.textContent = 'در حال دانلود…';
+  try{
+    if(!('caches' in window)) throw new Error('no-cache-api');
+    const cache = await caches.open('talavat-audio-v1');
+    await cache.add(url);
+    let list = [];
+    try{ list = JSON.parse(localStorage.getItem('ln_offlineList')||'[]'); }catch(e){}
+    if(!list.find(x=>x.url===url)) list.push({surah:surahNum, name:s[2], url});
+    localStorage.setItem('ln_offlineList', JSON.stringify(list));
+    status.textContent = `سوره ${s[2]} برای پخش آفلاین ذخیره شد.`;
+    renderOfflineList();
+  }catch(e){
+    status.textContent = 'ذخیره آفلاین ممکن نشد (این قابلیت فقط روی یک آدرس HTTPS واقعی کار می‌کند، نه فایل باز‌شده از روی سیستم).';
+  }
+};
+
+/* ---------- ژست کشیدن انگشت برای ورق‌زدن صفحه ---------- */
+(function(){
+  let touchStartX = null;
+  const frame = document.getElementById('pageFrame');
+  frame.addEventListener('touchstart', e=>{ touchStartX = e.changedTouches[0].clientX; }, {passive:true});
+  frame.addEventListener('touchend', e=>{
+    if(touchStartX===null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if(Math.abs(dx) > 60){
+      if(dx < 0 && currentPage < 604){ currentPage++; renderPage(); loadTranslation(surahForPage(currentPage)[0]); }
+      else if(dx > 0 && currentPage > 1){ currentPage--; renderPage(); loadTranslation(surahForPage(currentPage)[0]); }
+    }
+    touchStartX = null;
+  }, {passive:true});
+})();
+
 /* ---------- حمایت مالی ---------- */
 document.getElementById('copyCardBtn').onclick = ()=>{
   const num = document.getElementById('cardNumber').textContent.replace(/-/g,'');
@@ -1614,20 +1943,29 @@ document.getElementById('copyCardBtn').onclick = ()=>{
 };
 
 /* ---------- شروع برنامه ---------- */
+applyTheme();
+applyArabicFont();
 applyFontSize();
 renderKhatm();
+renderStats();
 renderTasbih();
+renderHijri();
+renderAsma();
 const resumePage = loadLastPage();
 if(resumePage) currentPage = resumePage;
 renderDhikr();
 fillSurahSelect();
 fillJuzSelect();
 fillSurahGrid();
+fillOfflineSurahSelect();
+renderOfflineList();
 renderPage();
 loadTranslation(surahForPage(currentPage)[0]);
 loadReciters();
 loadHiliteReciters();
 loadRadios();
+loadTopics();
+checkDailyReminder();
 </script>
 </body>
 </html>
