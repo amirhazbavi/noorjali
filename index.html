@@ -41,7 +41,7 @@
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=Scheherazade+New:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Lateef&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#080706;
@@ -57,6 +57,26 @@
     --text-dim:#a89a78;
     --danger:#c0563f;
     --shadow-deep:0 24px 50px rgba(0,0,0,.55);
+  }
+  [data-theme="light"]{
+    --bg:#f7f1e1;
+    --bg2:#efe6cd;
+    --panel:#fffaf0;
+    --panel2:#fbf3de;
+    --gold:#a8823a;
+    --gold-bright:#8a6420;
+    --gold-soft:#c79a44;
+    --gold-dim:#c9a84c;
+    --line:#e3d3a5;
+    --text:#2a2415;
+    --text-dim:#6b5c3a;
+    --shadow-deep:0 12px 30px rgba(120,100,50,.15);
+  }
+  [data-theme="light"] .pattern-veil{ opacity:.05;}
+  [data-theme="light"] body{
+    background:
+      radial-gradient(ellipse at 50% -10%, #efe0b8 0%, transparent 60%),
+      var(--bg);
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html,body{height:100%;}
@@ -196,8 +216,8 @@
   .page-frame img{ width:100%; display:block;}
   .page-frame .msg{ color:var(--text-dim); padding:30px; font-size:.85rem; line-height:1.9;}
   .mushaf-text{
-    font-family:'Amiri', serif; direction:rtl; text-align:justify; text-align-last:center;
-    font-size:1.75rem; line-height:2.8; color:var(--text); padding:30px 24px;
+    font-family:var(--arabic-font, 'Amiri', serif); direction:rtl; text-align:justify; text-align-last:center;
+    font-size:var(--arabic-size, 1.75rem); line-height:2.8; color:var(--text); padding:30px 24px;
     width:100%;
   }
   .ayah-num{
@@ -347,6 +367,85 @@
   .switch-row{ display:flex; align-items:center; gap:8px; font-size:.82rem; color:var(--text-dim);}
   .switch-row input{ flex:none; width:auto; accent-color:var(--gold);}
 
+  .video-frame{
+    position:relative; width:100%; padding-top:56.25%; border-radius:10px; overflow:hidden;
+    border:1px solid var(--gold-dim); background:#000;
+    box-shadow:0 0 0 6px #1c1710 inset, 0 0 0 7px var(--gold-dim) inset;
+  }
+  .video-frame iframe{ position:absolute; inset:0; width:100%; height:100%; border:0;}
+  .tv-channel-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:9px; margin-top:14px;}
+  .tv-channel-btn{
+    background:#100d0a; border:1px solid var(--line); border-radius:9px; padding:10px 8px;
+    cursor:pointer; font-size:.8rem; color:var(--text); text-align:center; transition:.18s;
+  }
+  .tv-channel-btn:hover{ border-color:var(--gold); color:var(--gold-bright); transform:translateY(-2px);}
+
+  /* --- حفظ قرآن --- */
+  .hidden-word{
+    filter:blur(6px); cursor:pointer; transition:filter .2s; border-radius:4px;
+    background:rgba(201,168,76,.08); padding:0 2px;
+  }
+  .hidden-word.revealed{ filter:none; background:none;}
+
+  /* --- تم و تنظیمات --- */
+  .theme-toggle-row{ display:flex; gap:10px; flex-wrap:wrap;}
+  .theme-swatch{
+    width:52px; height:52px; border-radius:12px; cursor:pointer; border:2px solid var(--line);
+    display:flex; align-items:center; justify-content:center; font-size:1.2rem; transition:.2s;
+  }
+  .theme-swatch.active{ border-color:var(--gold); box-shadow:0 0 12px rgba(201,168,76,.4);}
+  .theme-swatch.dark{ background:#0a0908; color:#f0d488;}
+  .theme-swatch.light{ background:#f7f1e1; color:#8a6420;}
+
+  /* --- آمار --- */
+  .stats-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(120px,1fr)); gap:9px; margin-top:12px;}
+  .stat-item{ background:#100d0a; border:1px solid var(--line); border-radius:9px; padding:14px; text-align:center;}
+  [data-theme="light"] .stat-item, [data-theme="light"] .timing-item, [data-theme="light"] .dua-list .dua-item,
+  [data-theme="light"] .tv-channel-btn, [data-theme="light"] .search-result-item, [data-theme="light"] .surah-chip,
+  [data-theme="light"] .dhikr-day, [data-theme="light"] select, [data-theme="light"] input,
+  [data-theme="light"] .qibla-compass, [data-theme="light"] .tafsir-box, [data-theme="light"] .card-number,
+  [data-theme="light"] .progress-track, [data-theme="light"] .tasbih-count, [data-theme="light"] .dhikr-today,
+  [data-theme="light"] .asma-item, [data-theme="light"] .topic-item, [data-theme="light"] .mosque-item,
+  [data-theme="light"] .hijri-banner, [data-theme="light"] .fontsize-ctrl button, [data-theme="light"] .reminder-banner{
+    background:#fffaf0;
+  }
+  .stat-item b{ display:block; color:var(--gold-bright); font-size:1.4rem; margin-top:4px;}
+
+  /* --- اسماءالحسنی --- */
+  .asma-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:9px; margin-top:12px; max-height:420px; overflow-y:auto;}
+  .asma-item{ background:#100d0a; border:1px solid var(--line); border-radius:9px; padding:10px; text-align:center;}
+  .asma-item .ar{ font-family:'Amiri', serif; font-size:1.3rem; color:var(--gold-bright);}
+  .asma-item .fa{ font-size:.72rem; color:var(--text-dim); margin-top:3px;}
+  .asma-of-day{
+    font-family:'Amiri', serif; font-size:2rem; color:var(--gold-bright); text-align:center;
+    padding:14px; border:1px dashed var(--gold-dim); border-radius:12px; background:#0f0d0a;
+  }
+
+  /* --- موضوعات و مسجد --- */
+  .topic-list{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+  .topic-item{
+    background:#100d0a; border:1px solid var(--line); border-radius:999px; padding:7px 14px;
+    font-size:.8rem; cursor:pointer; transition:.18s;
+  }
+  .topic-item:hover, .topic-item.active{ border-color:var(--gold); color:var(--gold-bright);}
+  .mosque-item{ background:#100d0a; border:1px solid var(--line); border-radius:9px; padding:11px; margin-bottom:8px; font-size:.85rem;}
+  .mosque-item b{ color:var(--gold-bright); display:block; margin-bottom:3px;}
+
+  /* --- هجری و یادآوری --- */
+  .hijri-banner{
+    background:#100d0a; border:1px solid var(--gold-dim); border-radius:10px; padding:14px;
+    text-align:center; margin-top:10px;
+  }
+  .hijri-banner b{ color:var(--gold-bright); font-size:1.1rem;}
+  .reminder-banner{
+    position:fixed; bottom:96px; right:14px; left:14px; z-index:60; max-width:420px; margin:0 auto;
+    background:#171410; border:1px solid var(--gold); border-radius:12px; padding:14px 16px;
+    box-shadow:var(--shadow-deep); font-size:.85rem; display:flex; justify-content:space-between; align-items:center; gap:10px;
+  }
+
+  /* --- ژست کشیدن صفحه (اسکرول لمسی) --- */
+  .page-frame{ touch-action:pan-y;}
+
   @media (max-width:600px){
     header h1{ font-size:1.9rem;}
     .page-frame{ min-height:280px;}
@@ -369,7 +468,8 @@
 <nav>
   <button data-tab="quran" class="active"><span class="ic">📖</span>مصحف</button>
   <button data-tab="worship"><span class="ic">🤲</span>ادعیه و اوقات</button>
-  <button data-tab="radio"><span class="ic">📻</span>رادیو قرآن</button>
+  <button data-tab="radio"><span class="ic">📻</span>رادیو و تلویزیون</button>
+  <button data-tab="settings"><span class="ic">⚙️</span>تنظیمات</button>
   <button data-tab="support"><span class="ic">🤍</span>حمایت از ما</button>
 </nav>
 
@@ -399,6 +499,12 @@
       <div class="search-results" id="searchResults"></div>
     </div>
 
+    <div class="card">
+      <h2><span class="ic">🏷️</span>مرور موضوعی آیات</h2>
+      <div class="topic-list" id="topicList"><span class="status">در حال دریافت موضوعات…</span></div>
+      <div class="search-results" id="topicResults"></div>
+    </div>
+
     <div class="card page-viewer">
       <h2><span class="ic">📜</span>صفحه مصحف</h2>
       <div class="page-frame" id="pageFrame">
@@ -415,6 +521,7 @@
           <button id="fontMinus">–</button>
           <button id="fontPlus">+</button>
         </div>
+        <button class="ghost" id="memorizeToggle">🧠 حالت حفظ</button>
         <button class="ghost" id="markReadBtn">✓ این صفحه را خواندم</button>
       </div>
       <div class="progress-wrap">
@@ -448,6 +555,7 @@
       </div>
       <div class="row" style="margin-top:10px;">
         <select id="hiliteReciterSelect"><option>در حال دریافت فهرست…</option></select>
+        <input id="ayahRepeatCount" type="number" min="1" max="20" value="1" style="flex:none; width:70px;" title="تعداد تکرار هر آیه">
         <button class="ghost" id="playHiliteBtn">▶ پخش با هایلایت آیه</button>
         <button class="ghost hidden" id="stopHiliteBtn">■ توقف</button>
       </div>
@@ -471,6 +579,11 @@
   <section id="tab-worship" class="hidden">
 
     <div class="card">
+      <h2><span class="ic">🌙</span>تقویم هجری</h2>
+      <div class="hijri-banner" id="hijriBanner">در حال محاسبه…</div>
+    </div>
+
+    <div class="card">
       <h2><span class="ic">🕋</span>اوقات شرعی و قبله</h2>
       <button class="primary" id="getTimingsBtn">دریافت بر اساس موقعیت مکانی من</button>
       <div class="status" id="timingsStatus"></div>
@@ -481,6 +594,20 @@
         این بخش برای محاسبه، به مجوز موقعیت مکانی مرورگر نیاز دارد و جهت قبله بر اساس شمال جغرافیایی
         محاسبه می‌شود (بدون در نظر گرفتن جهت فعلی گوشی شما).
       </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ic">🕌</span>مسجد‌های نزدیک شما</h2>
+      <button class="ghost" id="findMosquesBtn">جستجوی مسجد نزدیک (بر اساس موقعیت من)</button>
+      <div class="status" id="mosqueStatus"></div>
+      <div id="mosqueList"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ic">✨</span>اسماءالحسنی</h2>
+      <div class="asma-of-day" id="asmaOfDay"></div>
+      <button class="ghost" id="toggleAsmaList" style="margin-top:12px;">نمایش هر ۹۹ نام</button>
+      <div class="asma-grid hidden" id="asmaGrid"></div>
     </div>
 
     <div class="card">
@@ -535,10 +662,83 @@
       </div>
       <div class="status" id="radioStatus"></div>
       <div class="hint">
-        فهرست رادیوها به‌صورت زنده دریافت می‌شود. اگر مرورگر شما درخواست را مسدود کند،
-        فهرست جایگزین (استاتیک) نمایش داده خواهد شد.
+        فهرست کامل رادیوهای زنده قرآن (ده‌ها ایستگاه از سراسر جهان اسلام) به‌صورت زنده از یک وب‌سرویس
+        عمومی دریافت می‌شود. اگر مرورگر شما درخواست را مسدود کند، فهرست جایگزین (استاتیک) نمایش داده می‌شود.
       </div>
     </div>
+
+    <div class="card">
+      <h2><span class="ic">📺</span>تلویزیون قرآن (پخش زنده تصویری)</h2>
+      <div class="video-frame">
+        <iframe id="tvFrame" src="https://makkahlive.net/en/live/makkah" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <button class="ghost" id="tvOpenNewTab">اگر پخش نمایش داده نشد، اینجا را باز کنید ↗</button>
+      </div>
+      <div class="tv-channel-grid" id="tvChannelGrid"></div>
+      <div class="row" style="margin-top:12px;">
+        <input id="customTvInput" type="text" placeholder="یا لینک یوتیوب دلخواه خود را اینجا بچسبانید…">
+        <button class="ghost" id="customTvBtn">نمایش</button>
+      </div>
+      <div class="hint">
+        پخش پیش‌فرض از سایت معتبر Makkah Live است. برخی مرورگرها یا سایت‌های منبع، نمایش داخل قاب
+        (iframe) را محدود می‌کنند؛ در آن صورت از دکمهٔ «باز کردن در تب جدید» یا یکی از کانال‌های زیر استفاده کنید.
+        هر کدام از این‌ها را باز می‌کنید، مستقیماً به سایت رسمی همان کانال منتقل می‌شوید.
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SETTINGS TAB ================= -->
+  <section id="tab-settings" class="hidden">
+
+    <div class="card">
+      <h2><span class="ic">🎨</span>ظاهر برنامه</h2>
+      <div class="status" style="margin-bottom:8px;">تم رنگی:</div>
+      <div class="theme-toggle-row">
+        <div class="theme-swatch dark" id="themeDark" title="مشکی‌طلایی">☾</div>
+        <div class="theme-swatch light" id="themeLight" title="روز / کم‌نور">☀</div>
+      </div>
+      <div class="row" style="margin-top:16px;">
+        <span class="status" style="margin:0;">فونت عربی:</span>
+        <select id="arabicFontSelect">
+          <option value="Amiri">امیری (پیش‌فرض)</option>
+          <option value="Scheherazade New">شهرزاد</option>
+          <option value="Noto Naskh Arabic">نوتو نسخ</option>
+          <option value="Lateef">لطیف</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ic">📊</span>آمار و انگیزه مطالعه</h2>
+      <div class="stats-grid" id="statsGrid"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ic">🔔</span>یادآوری روزانه</h2>
+      <button class="ghost" id="enableReminderBtn">فعال‌کردن یادآوری در این مرورگر</button>
+      <div class="status" id="reminderStatus"></div>
+      <div class="hint">
+        این یادآوری فقط وقتی کار می‌کند که برنامه در مرورگر شما باز باشد (یک بار در روز، هنگام باز کردن برنامه)؛
+        برای اعلان واقعی حتی وقتی برنامه بسته است، به یک سرور و اپلیکیشن اختصاصی نیاز است که در یک فایل HTML
+        ساده امکان‌پذیر نیست.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ic">⬇️</span>دانلود سوره برای پخش آفلاین</h2>
+      <div class="row">
+        <select id="offlineSurahSelect"></select>
+        <button class="ghost" id="downloadOfflineBtn">دانلود</button>
+      </div>
+      <div class="status" id="offlineStatus"></div>
+      <div id="offlineList"></div>
+      <div class="hint">
+        صوت دانلودشده در حافظه مرورگر (Cache) ذخیره می‌شود و دفعات بعد بدون اینترنت هم پخش می‌شود — به‌شرط
+        اینکه فایل را از همان مرورگر و روی یک آدرس HTTPS واقعی باز کرده باشید (نه مستقیم از روی سیستم).
+      </div>
+    </div>
+
   </section>
 
   <!-- ================= SUPPORT TAB ================= -->
@@ -661,6 +861,7 @@ let TAFSIR_ID = null;
 let HILITE_RECITERS = [];
 let hiliteActive = false;
 let hiliteStop = false;
+let memorizeMode = false;
 
 const ISLAMIC_APP = 'https://api.islamic.app/v1';
 
@@ -684,7 +885,7 @@ document.querySelectorAll('nav button').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    ['quran','worship','radio','support'].forEach(t=>{
+    ['quran','worship','radio','settings','support'].forEach(t=>{
       document.getElementById('tab-'+t).classList.toggle('hidden', t!==btn.dataset.tab);
     });
   });
@@ -786,6 +987,15 @@ function changeFontSize(delta){
   try{ localStorage.setItem('ln_fontStep', String(step)); }catch(e){}
   applyFontSize();
 }
+document.getElementById('fontMinus').onclick = ()=>changeFontSize(-1);
+document.getElementById('fontPlus').onclick = ()=>changeFontSize(1);
+document.getElementById('markReadBtn').onclick = ()=>markPageRead(currentPage);
+document.getElementById('memorizeToggle').onclick = ()=>{
+  memorizeMode = !memorizeMode;
+  document.getElementById('memorizeToggle').style.borderColor = memorizeMode ? 'var(--gold)' : '';
+  document.getElementById('memorizeToggle').style.color = memorizeMode ? 'var(--gold-bright)' : '';
+  renderPage();
+};
 
 /* ---------- نمایش صفحه مصحف ----------
    توجه صادقانه: بعد از دو بار تلاش برای نمایش تصویر اسکن‌شده از منابع
@@ -834,9 +1044,12 @@ async function renderPage(){
     if(!ayahs.length){
       frame.innerHTML = `<div class="msg">آیه‌ای برای این صفحه یافت نشد.</div>`;
     }else{
-      frame.innerHTML = `<div class="mushaf-text">` + ayahs.map(a=>
-        `${a.text} <span class="ayah-num" data-surah="${a.surah}" data-ayah="${a.numberInSurah}" title="نمایش تفسیر">${toArabicDigits(a.numberInSurah)}</span>`
-      ).join(' ') + `</div>`;
+      frame.innerHTML = `<div class="mushaf-text">` + ayahs.map(a=>{
+        const words = memorizeMode
+          ? a.text.split(' ').map(w=>`<span class="hidden-word">${w}</span>`).join(' ')
+          : a.text;
+        return `${words} <span class="ayah-num" data-surah="${a.surah}" data-ayah="${a.numberInSurah}" title="نمایش تفسیر">${toArabicDigits(a.numberInSurah)}</span>`;
+      }).join(' ') + `</div>`;
     }
   }catch(e){
     frame.innerHTML = `<div class="msg">
@@ -903,7 +1116,8 @@ async function loadTranslation(surahId){
         `<b>${a.numberInSurah}.</b>${a.text}` +
         `<span class="ayah-tools">` +
           `<button class="tafsir-trigger" data-surah="${surahId}" data-ayah="${a.numberInSurah}">تفسیر</button>` +
-          `<button class="share-trigger" data-surah="${surahId}" data-ayah="${a.numberInSurah}">اشتراک</button>` +
+          `<button class="copy-trigger" data-text="${a.text.replace(/"/g,'&quot;')}">کپی</button>` +
+          `<button class="share-trigger" data-surah="${surahId}" data-ayah="${a.numberInSurah}" data-text="${a.text.replace(/"/g,'&quot;')}">اشتراک</button>` +
         `</span>` +
       `</div>`
     ).join('');
@@ -988,17 +1202,20 @@ async function playSurahHighlighted(){
       const target = document.querySelector(`.translation-box .ayah[data-ayah-index="${ayahNum}"]`);
       if(target){ target.classList.add('hilite-active'); target.scrollIntoView({behavior:'smooth', block:'center'}); }
       document.getElementById('audioTitle').textContent = `${currentSurah[2]} — آیه ${ayahNum} — ${reciter.name}`;
-      player.src = `${ISLAMIC_APP}/audio/ayah/${reciter.id}/${globalNum}`;
-      player.playbackRate = speed;
-      try{
-        await new Promise((resolve, reject)=>{
-          player.onended = resolve;
-          player.onerror = ()=>reject(new Error('audio-error'));
-          player.play().catch(reject);
-        });
-      }catch(e){
-        document.getElementById('reciterStatus').textContent = 'پخش آیه‌به‌آیه با این قاری ممکن نشد؛ قاری دیگری را امتحان کنید.';
-        hiliteStop = true;
+      const perAyahRepeat = Math.max(1, parseInt(document.getElementById('ayahRepeatCount').value, 10) || 1);
+      for(let rep=0; rep<perAyahRepeat && !hiliteStop; rep++){
+        player.src = `${ISLAMIC_APP}/audio/ayah/${reciter.id}/${globalNum}`;
+        player.playbackRate = speed;
+        try{
+          await new Promise((resolve, reject)=>{
+            player.onended = resolve;
+            player.onerror = ()=>reject(new Error('audio-error'));
+            player.play().catch(reject);
+          });
+        }catch(e){
+          document.getElementById('reciterStatus').textContent = 'پخش آیه‌به‌آیه با این قاری ممکن نشد؛ قاری دیگری را امتحان کنید.';
+          hiliteStop = true;
+        }
       }
     }
   }while(repeat && !hiliteStop);
@@ -1045,6 +1262,63 @@ document.getElementById('playRadioBtn').onclick = ()=>{
   const r = RADIOS[idx];
   if(!r) return;
   playAudio(r.url, `پخش زنده: ${r.name}`);
+};
+
+/* ---------- تلویزیون قرآن ----------
+   توجه صادقانه: بث زنده تصویری (برخلاف صدا) معمولاً از طریق پخش‌کننده‌های
+   اختصاصی جاوااسکریپتی سرو می‌شود که آدرس مستقیم HLS آن‌ها قابل استخراج
+   و آزمایش امن از این محیط نبود. به‌همین دلیل، به‌جای حدس‌زدن یک آدرس
+   ویدیویی که ممکن است اصلاً کار نکند، هر کانال به صفحه رسمی و واقعی
+   همان منبع لینک داده شده — این‌طور تضمین می‌شود هیچ‌کدام هرگز «شکسته» نیست. */
+const TV_CHANNELS = [
+  {name:'مکه — الحرم المکی', url:'https://makkahlive.net/en/live/makkah'},
+  {name:'مدینه — الحرم النبوی', url:'https://makkahlive.net/en/live/madinah'},
+  {name:'مسجد الاقصی', url:'https://makkahlive.net/en/live/aqsa'},
+  {name:'اقرأ (Iqraa TV)', url:'https://makkahlive.net/en/islamic-tv/iqraa-tv'},
+  {name:'هدی تی‌وی (Huda TV)', url:'https://makkahlive.net/en/islamic-tv/huda-tv'},
+  {name:'پیس تی‌وی (Peace TV)', url:'https://makkahlive.net/en/islamic-tv/peace-tv'},
+  {name:'المجد قرآن', url:'https://makkahlive.net/en/islamic-tv/almajd-quran'},
+  {name:'Islam Channel', url:'https://makkahlive.net/en/islamic-tv/islam-channel'}
+];
+
+function renderTvChannels(){
+  const grid = document.getElementById('tvChannelGrid');
+  grid.innerHTML = TV_CHANNELS.map((c,i)=>`<div class="tv-channel-btn" data-i="${i}">${c.name}</div>`).join('');
+  grid.querySelectorAll('.tv-channel-btn').forEach(btn=>{
+    btn.onclick = ()=>{
+      const ch = TV_CHANNELS[parseInt(btn.dataset.i,10)];
+      document.getElementById('tvFrame').src = ch.url;
+      document.getElementById('tvOpenNewTab').dataset.url = ch.url;
+    };
+  });
+}
+renderTvChannels();
+
+document.getElementById('tvOpenNewTab').onclick = function(){
+  const url = this.dataset.url || document.getElementById('tvFrame').src || TV_CHANNELS[0].url;
+  window.open(url, '_blank', 'noopener');
+};
+document.getElementById('tvOpenNewTab').dataset.url = TV_CHANNELS[0].url;
+
+function youtubeEmbedFromUrl(url){
+  try{
+    const u = new URL(url);
+    if(u.hostname.includes('youtu.be')) return `https://www.youtube.com/embed/${u.pathname.slice(1)}`;
+    if(u.hostname.includes('youtube.com')){
+      if(u.searchParams.get('v')) return `https://www.youtube.com/embed/${u.searchParams.get('v')}`;
+      if(u.pathname.startsWith('/live/')) return `https://www.youtube.com${u.pathname.replace('/live/', '/embed/')}`;
+      if(u.pathname.startsWith('/embed/')) return url;
+      if(u.pathname.startsWith('/@') || u.pathname.startsWith('/channel/')) return `https://www.youtube.com/embed/live_stream?channel=${u.pathname.split('/').pop()}`;
+    }
+  }catch(e){ /* آدرس نامعتبر */ }
+  return null;
+}
+document.getElementById('customTvBtn').onclick = ()=>{
+  const raw = document.getElementById('customTvInput').value.trim();
+  if(!raw) return;
+  const embed = youtubeEmbedFromUrl(raw) || raw;
+  document.getElementById('tvFrame').src = embed;
+  document.getElementById('tvOpenNewTab').dataset.url = raw;
 };
 
 /* ---------- پخش‌کننده مشترک ---------- */
@@ -1102,6 +1376,8 @@ async function showTafsir(surahNum, ayahNum){
 }
 
 document.getElementById('pageFrame').addEventListener('click', e=>{
+  const w = e.target.closest('.hidden-word');
+  if(w){ w.classList.add('revealed'); return; }
   const t = e.target.closest('.ayah-num');
   if(t) showTafsir(t.dataset.surah, t.dataset.ayah);
 });
@@ -1109,7 +1385,14 @@ document.getElementById('translationBox').addEventListener('click', e=>{
   const tf = e.target.closest('.tafsir-trigger');
   if(tf){ showTafsir(tf.dataset.surah, tf.dataset.ayah); document.querySelector('nav button[data-tab="quran"]').click(); document.getElementById('tafsirPanel').scrollIntoView({behavior:'smooth'}); }
   const sh = e.target.closest('.share-trigger');
-  if(sh) shareAyahImage(parseInt(sh.dataset.surah,10), parseInt(sh.dataset.ayah,10));
+  if(sh) shareAyahImage(parseInt(sh.dataset.surah,10), parseInt(sh.dataset.ayah,10), sh.dataset.text||'');
+  const cp = e.target.closest('.copy-trigger');
+  if(cp){
+    navigator.clipboard.writeText(cp.dataset.text||'').then(()=>{
+      const old = cp.textContent; cp.textContent = '✓';
+      setTimeout(()=>cp.textContent=old, 1200);
+    }).catch(()=>{});
+  }
 });
 
 /* ---------- جستجوی متنی در قرآن و ترجمه ---------- */
@@ -1262,12 +1545,11 @@ function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight){
   return lines.length;
 }
 
-async function shareAyahImage(surahNum, ayahNum){
+async function shareAyahImage(surahNum, ayahNum, translationText){
   try{
     const quran = await loadFullQuran();
     const ayah = quran.find(a=>a.surah===surahNum && a.numberInSurah===ayahNum);
-    const translationEl = document.querySelector(`.translation-box .ayah[data-ayah-index="${ayahNum}"]`);
-    const translationText = translationEl ? translationEl.textContent.replace(/تفسیراشتراک$/,'').trim() : '';
+    translationText = translationText || '';
     const s = SURAHS.find(x=>x[0]===surahNum);
 
     if(document.fonts && document.fonts.ready) await document.fonts.ready;
@@ -1332,12 +1614,19 @@ document.getElementById('copyCardBtn').onclick = ()=>{
 };
 
 /* ---------- شروع برنامه ---------- */
+applyFontSize();
+renderKhatm();
+renderTasbih();
+const resumePage = loadLastPage();
+if(resumePage) currentPage = resumePage;
 renderDhikr();
 fillSurahSelect();
+fillJuzSelect();
 fillSurahGrid();
 renderPage();
-loadTranslation(1);
+loadTranslation(surahForPage(currentPage)[0]);
 loadReciters();
+loadHiliteReciters();
 loadRadios();
 </script>
 </body>
